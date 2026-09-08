@@ -215,7 +215,7 @@ class _MatchingGameViewState extends State<MatchingGameView> {
         ),
         const SizedBox(height: 16),
         SizedBox(
-          width: 360,
+          width: min(360.0, MediaQuery.sizeOf(context).width - 40),
           child: GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),

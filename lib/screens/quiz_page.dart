@@ -261,44 +261,54 @@ class _QuizPageState extends State<QuizPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('한자 퀴즈')),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Center(child: _buildModeSelector()),
-              const SizedBox(height: 12),
-              if (_mode != QuizMode.matching)
-                Text(
-                  '문제 $questionNumber / $questionsPerRound',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14, color: Colors.grey.shade700, fontWeight: FontWeight.bold),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Center(child: _buildModeSelector()),
+                    const SizedBox(height: 12),
+                    if (_mode != QuizMode.matching)
+                      Text(
+                        '문제 $questionNumber / $questionsPerRound',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 14, color: Colors.grey.shade700, fontWeight: FontWeight.bold),
+                      ),
+                    const SizedBox(height: 16),
+                    _buildQuizBody(),
+                    if (_mode != QuizMode.matching && _answered) ...[
+                      const SizedBox(height: 16),
+                      Text(
+                        _isCurrentCorrect ? '정답입니다!' : '오답입니다!',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: _isCurrentCorrect ? Colors.green : Colors.red),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '정답: $correctAnswers / 오답: $incorrectAnswers',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 14, color: Colors.black54),
+                      ),
+                      const SizedBox(height: 12),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
+                        onPressed: _onNextPressed,
+                        child: Text(
+                          questionNumber >= questionsPerRound ? '결과 보기' : '다음 문제',
+                          style: const TextStyle(fontSize: 18),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
-              Expanded(child: Center(child: _buildQuizBody())),
-              if (_mode != QuizMode.matching && _answered) ...[
-                Text(
-                  _isCurrentCorrect ? '정답입니다!' : '오답입니다!',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: _isCurrentCorrect ? Colors.green : Colors.red),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '정답: $correctAnswers / 오답: $incorrectAnswers',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 14, color: Colors.black54),
-                ),
-                const SizedBox(height: 12),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
-                  onPressed: _onNextPressed,
-                  child: Text(
-                    questionNumber >= questionsPerRound ? '결과 보기' : '다음 문제',
-                    style: const TextStyle(fontSize: 18),
-                  ),
-                ),
-              ],
-            ],
-          ),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -332,24 +342,24 @@ class _QuizPageState extends State<QuizPage> {
         Stack(
           alignment: Alignment.center,
           children: [
-            Text(currentHanja!.hanja, textAlign: TextAlign.center, style: const TextStyle(fontSize: 100, fontWeight: FontWeight.bold)),
+            Text(currentHanja!.hanja, textAlign: TextAlign.center, style: const TextStyle(fontSize: 72, fontWeight: FontWeight.bold)),
             Positioned(
               top: 0,
-              left: 20,
-              child: Text(currentHanja!.id.toString(), style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey.shade700)),
+              left: 12,
+              child: Text(currentHanja!.id.toString(), style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey.shade700)),
             ),
           ],
         ),
-        const SizedBox(height: 28),
+        const SizedBox(height: 16),
         SizedBox(
-          width: 340,
+          width: min(300.0, MediaQuery.sizeOf(context).width - 40),
           child: GridView.count(
             crossAxisCount: 2,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 12,
-            childAspectRatio: 3.5,
+            mainAxisSpacing: 10,
+            crossAxisSpacing: 10,
+            childAspectRatio: 3.2,
             children: meaningOptions.map((option) {
               final isCorrectOption = option.id == currentHanja!.id;
               final isSelected = selectedMeaningOption?.id == option.id;
@@ -360,7 +370,7 @@ class _QuizPageState extends State<QuizPage> {
                   shape: WidgetStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                 ),
                 onPressed: _answered ? null : () => _selectMeaningOption(option),
-                child: Text('${option.meaning} (${option.hangul})', textAlign: TextAlign.center, style: const TextStyle(fontSize: 16)),
+                child: Text('${option.meaning} (${option.hangul})', textAlign: TextAlign.center, style: const TextStyle(fontSize: 14)),
               );
             }).toList(),
           ),
@@ -374,16 +384,16 @@ class _QuizPageState extends State<QuizPage> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text('구절 속 빈칸에 들어갈 한자를 고르세요', style: TextStyle(fontSize: 14, color: Colors.black54)),
-        const SizedBox(height: 20),
+        const Text('구절 속 빈칸에 들어갈 한자를 고르세요', style: TextStyle(fontSize: 13, color: Colors.black54)),
+        const SizedBox(height: 14),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             for (var i = 0; i < currentPhrase.length; i++) ...[
-              if (i > 0) const SizedBox(width: 8),
+              if (i > 0) const SizedBox(width: 6),
               Container(
-                width: 64,
-                height: 64,
+                width: 52,
+                height: 52,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   border: Border.all(color: i == blankIndex ? Colors.indigo : Colors.grey.shade300, width: i == blankIndex ? 2 : 1),
@@ -392,22 +402,22 @@ class _QuizPageState extends State<QuizPage> {
                 ),
                 child: Text(
                   i == blankIndex && !_answered ? '?' : currentPhrase[i].hanja,
-                  style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: i == blankIndex ? Colors.indigo : Colors.black87),
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: i == blankIndex ? Colors.indigo : Colors.black87),
                 ),
               ),
             ],
           ],
         ),
-        const SizedBox(height: 28),
+        const SizedBox(height: 16),
         SizedBox(
-          width: 320,
+          width: min(280.0, MediaQuery.sizeOf(context).width - 40),
           child: GridView.count(
             crossAxisCount: 2,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 12,
-            childAspectRatio: 2.4,
+            mainAxisSpacing: 10,
+            crossAxisSpacing: 10,
+            childAspectRatio: 2.2,
             children: fillOptions.map((option) {
               final isCorrectOption = option.id == currentPhrase[blankIndex].id;
               final isSelected = selectedFillOption?.id == option.id;
@@ -418,7 +428,7 @@ class _QuizPageState extends State<QuizPage> {
                   shape: WidgetStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                 ),
                 onPressed: _answered ? null : () => _selectFillOption(option),
-                child: Text('${option.hanja} (${option.hangul})', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                child: Text('${option.hanja} (${option.hangul})', style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
               );
             }).toList(),
           ),
@@ -432,18 +442,18 @@ class _QuizPageState extends State<QuizPage> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text('한자를 순서대로 탭하여 배치하세요', style: TextStyle(fontSize: 14, color: Colors.black54)),
-        const SizedBox(height: 20),
+        const Text('한자를 순서대로 탭하여 배치하세요', style: TextStyle(fontSize: 13, color: Colors.black54)),
+        const SizedBox(height: 14),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             for (var i = 0; i < orderSlots.length; i++) ...[
-              if (i > 0) const SizedBox(width: 8),
+              if (i > 0) const SizedBox(width: 6),
               GestureDetector(
                 onTap: () => _tapSlot(i),
                 child: Container(
-                  width: 64,
-                  height: 64,
+                  width: 52,
+                  height: 52,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     border: Border.all(
@@ -455,23 +465,23 @@ class _QuizPageState extends State<QuizPage> {
                     borderRadius: BorderRadius.circular(8),
                     color: orderSlots[i] != null ? Colors.indigo.shade50 : Colors.grey.shade100,
                   ),
-                  child: Text(orderSlots[i]?.hanja ?? '', style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+                  child: Text(orderSlots[i]?.hanja ?? '', style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
                 ),
               ),
             ],
           ],
         ),
-        const SizedBox(height: 28),
+        const SizedBox(height: 16),
         Wrap(
           alignment: WrapAlignment.center,
-          spacing: 12,
-          runSpacing: 12,
+          spacing: 10,
+          runSpacing: 10,
           children: orderBank.map((tile) {
             return GestureDetector(
               onTap: _answered ? null : () => _tapBankTile(tile),
               child: Container(
-                width: 64,
-                height: 64,
+                width: 52,
+                height: 52,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -479,16 +489,16 @@ class _QuizPageState extends State<QuizPage> {
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1))],
                 ),
-                child: Text(tile.hanja, style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+                child: Text(tile.hanja, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
               ),
             );
           }).toList(),
         ),
         if (_answered && orderCorrect == false) ...[
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           Text(
             '정답: ${orderPhrase.map((h) => h.hanja).join(' ')}',
-            style: const TextStyle(fontSize: 16, color: Colors.redAccent, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 15, color: Colors.redAccent, fontWeight: FontWeight.bold),
           ),
         ],
       ],
