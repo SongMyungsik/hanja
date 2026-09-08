@@ -60,6 +60,7 @@ class _QuizPageState extends State<QuizPage> {
   List<Hanja> orderPhrase = [];
   List<Hanja?> orderSlots = [];
   List<Hanja> orderBank = [];
+  List<Hanja> orderMeaningOrder = [];
   bool? orderCorrect;
 
   @override
@@ -140,6 +141,7 @@ class _QuizPageState extends State<QuizPage> {
     while (_sameOrder(orderBank, orderPhrase)) {
       orderBank.shuffle(_random);
     }
+    orderMeaningOrder = List<Hanja>.from(orderBank);
   }
 
   bool _sameOrder(List<Hanja> a, List<Hanja> b) {
@@ -408,6 +410,8 @@ class _QuizPageState extends State<QuizPage> {
             ],
           ],
         ),
+        const SizedBox(height: 8),
+        _buildPhraseMeaningHint(currentPhrase),
         const SizedBox(height: 16),
         SizedBox(
           width: min(280.0, MediaQuery.sizeOf(context).width - 40),
@@ -471,6 +475,8 @@ class _QuizPageState extends State<QuizPage> {
             ],
           ],
         ),
+        const SizedBox(height: 8),
+        _buildPhraseMeaningHint(orderMeaningOrder),
         const SizedBox(height: 16),
         Wrap(
           alignment: WrapAlignment.center,
@@ -502,6 +508,20 @@ class _QuizPageState extends State<QuizPage> {
           ),
         ],
       ],
+    );
+  }
+
+  Widget _buildPhraseMeaningHint(List<Hanja> chars) {
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 10,
+      runSpacing: 2,
+      children: chars
+          .map((h) => Text(
+                '${h.hanja}(${h.hangul}) ${h.meaning}',
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              ))
+          .toList(),
     );
   }
 }
