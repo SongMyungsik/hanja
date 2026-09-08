@@ -32,7 +32,8 @@ class _HanziWriterViewState extends State<HanziWriterView> {
       final div = web.HTMLDivElement()..id = _viewType;
       div.style
         ..setProperty('width', '${_size}px')
-        ..setProperty('height', '${_size}px');
+        ..setProperty('height', '${_size}px')
+        ..setProperty('touch-action', 'none');
 
       final hanziWriterCtor = globalContext.getProperty('HanziWriter'.toJS);
       if (hanziWriterCtor != null) {
@@ -84,10 +85,19 @@ class _HanziWriterViewState extends State<HanziWriterView> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SizedBox(
-          width: _size,
-          height: _size,
-          child: HtmlElementView(viewType: _viewType),
+        // 필기 중 드래그가 상위 SingleChildScrollView의 스크롤 제스처로
+        // 가로채지지 않도록, 세로/가로 드래그를 여기서 먼저 점유한다.
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onVerticalDragStart: (_) {},
+          onVerticalDragUpdate: (_) {},
+          onHorizontalDragStart: (_) {},
+          onHorizontalDragUpdate: (_) {},
+          child: SizedBox(
+            width: _size,
+            height: _size,
+            child: HtmlElementView(viewType: _viewType),
+          ),
         ),
         const SizedBox(height: 12),
         Row(
