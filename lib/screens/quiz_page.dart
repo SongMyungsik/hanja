@@ -410,8 +410,10 @@ class _QuizPageState extends State<QuizPage> {
             ],
           ],
         ),
-        const SizedBox(height: 8),
-        _buildPhraseMeaningHint(currentPhrase),
+        if (_answered) ...[
+          const SizedBox(height: 8),
+          _buildPhraseMeaningHint(currentPhrase),
+        ],
         const SizedBox(height: 16),
         SizedBox(
           width: min(280.0, MediaQuery.sizeOf(context).width - 40),
@@ -475,8 +477,10 @@ class _QuizPageState extends State<QuizPage> {
             ],
           ],
         ),
-        const SizedBox(height: 8),
-        _buildPhraseMeaningHint(orderMeaningOrder),
+        if (_answered) ...[
+          const SizedBox(height: 8),
+          _buildPhraseMeaningHint(orderMeaningOrder),
+        ],
         const SizedBox(height: 16),
         Wrap(
           alignment: WrapAlignment.center,
