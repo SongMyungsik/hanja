@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/hanja.dart';
+import '../widgets/hanzi_writer_view.dart';
 
 class HanjaDetailPage extends StatefulWidget {
   final List<Hanja> hanjaList;
@@ -58,6 +59,15 @@ class _HanjaDetailPageState extends State<HanjaDetailPage> {
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [_buildValueText(': ${currentHanja.meaning} ... ${currentHanja.hangul}'), _buildValueText(': ${currentHanja.radical}'), _buildValueText(': ${currentHanja.strokeCount}획'), _buildValueText(': ${currentHanja.pinyin}', color: Colors.redAccent)]),
               ]),
             ]))),
+            const SizedBox(height: 20),
+            const Text('획순 / 쓰기 연습', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            Center(
+              child: HanziWriterView(
+                key: ValueKey(currentHanja.id),
+                character: currentHanja.hanja,
+              ),
+            ),
             const SizedBox(height: 20),
             const Text('사용 예시', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
