@@ -4,20 +4,23 @@ import '../models/hanja.dart';
 import '../models/quiz_result.dart';
 import '../services/quiz_result_store.dart';
 import 'ranking_page.dart';
+import 'matching_game_view.dart';
 
-enum QuizMode { meaning, fillBlank, order }
+enum QuizMode { meaning, fillBlank, order, matching }
 
 extension _QuizModeX on QuizMode {
   String get label => switch (this) {
         QuizMode.meaning => '뜻 맞추기',
         QuizMode.fillBlank => '빈칸 채우기',
         QuizMode.order => '순서 배열',
+        QuizMode.matching => '짝맞추기',
       };
 
   String get storageKey => switch (this) {
         QuizMode.meaning => 'meaning',
         QuizMode.fillBlank => 'fillBlank',
         QuizMode.order => 'order',
+        QuizMode.matching => 'matching',
       };
 }
 
@@ -83,6 +86,7 @@ class _QuizPageState extends State<QuizPage> {
   }
 
   void _generateQuestion() {
+    if (_mode == QuizMode.matching) return;
     setState(() {
       _answered = false;
       questionNumber++;
@@ -93,6 +97,8 @@ class _QuizPageState extends State<QuizPage> {
           _generateFillBlankQuestion();
         case QuizMode.order:
           _generateOrderQuestion();
+        case QuizMode.matching:
+          break;
       }
     });
   }
@@ -240,6 +246,7 @@ class _QuizPageState extends State<QuizPage> {
         QuizMode.meaning => selectedMeaningOption?.id == currentHanja?.id,
         QuizMode.fillBlank => selectedFillOption?.id == currentPhrase[blankIndex].id,
         QuizMode.order => orderCorrect ?? false,
+        QuizMode.matching => false,
       };
 
   Color _choiceColor({required bool isCorrectOption, required bool isSelected}) {
@@ -261,13 +268,14 @@ class _QuizPageState extends State<QuizPage> {
             children: [
               Center(child: _buildModeSelector()),
               const SizedBox(height: 12),
-              Text(
-                '문제 $questionNumber / $questionsPerRound',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, color: Colors.grey.shade700, fontWeight: FontWeight.bold),
-              ),
+              if (_mode != QuizMode.matching)
+                Text(
+                  '문제 $questionNumber / $questionsPerRound',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade700, fontWeight: FontWeight.bold),
+                ),
               Expanded(child: Center(child: _buildQuizBody())),
-              if (_answered) ...[
+              if (_mode != QuizMode.matching && _answered) ...[
                 Text(
                   _isCurrentCorrect ? '정답입니다!' : '오답입니다!',
                   textAlign: TextAlign.center,
@@ -312,6 +320,7 @@ class _QuizPageState extends State<QuizPage> {
       QuizMode.meaning => _buildMeaningBody(),
       QuizMode.fillBlank => _buildFillBlankBody(),
       QuizMode.order => _buildOrderBody(),
+      QuizMode.matching => MatchingGameView(hanjaList: widget.hanjaList),
     };
   }
 

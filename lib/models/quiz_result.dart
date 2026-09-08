@@ -3,12 +3,14 @@ class QuizResult {
   final int correctCount;
   final int totalQuestions;
   final String mode;
+  final int? elapsedSeconds;
 
   QuizResult({
     required this.date,
     required this.correctCount,
     required this.totalQuestions,
     this.mode = 'meaning',
+    this.elapsedSeconds,
   });
 
   int get score =>
@@ -17,6 +19,7 @@ class QuizResult {
   String get modeLabel => switch (mode) {
         'fillBlank' => '빈칸 채우기',
         'order' => '순서 배열',
+        'matching' => '카드 짝맞추기',
         _ => '뜻 맞추기',
       };
 
@@ -25,6 +28,7 @@ class QuizResult {
         'correctCount': correctCount,
         'totalQuestions': totalQuestions,
         'mode': mode,
+        if (elapsedSeconds != null) 'elapsedSeconds': elapsedSeconds,
       };
 
   factory QuizResult.fromJson(Map<String, dynamic> json) => QuizResult(
@@ -32,5 +36,6 @@ class QuizResult {
         correctCount: json['correctCount'] as int,
         totalQuestions: json['totalQuestions'] as int,
         mode: json['mode'] as String? ?? 'meaning',
+        elapsedSeconds: json['elapsedSeconds'] as int?,
       );
 }

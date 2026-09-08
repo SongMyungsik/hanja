@@ -75,7 +75,11 @@ class _RankingPageState extends State<RankingPage> {
                     '${result.score}점  (${result.correctCount}/${result.totalQuestions})',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  subtitle: Text('${result.modeLabel} · ${_formatDate(result.date)}'),
+                  subtitle: Text(
+                    result.elapsedSeconds != null
+                        ? '${result.modeLabel} · ${result.elapsedSeconds}초 · ${_formatDate(result.date)}'
+                        : '${result.modeLabel} · ${_formatDate(result.date)}',
+                  ),
                 );
               },
             ),
