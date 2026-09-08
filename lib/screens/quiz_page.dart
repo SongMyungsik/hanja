@@ -477,10 +477,8 @@ class _QuizPageState extends State<QuizPage> {
             ],
           ],
         ),
-        if (_answered) ...[
-          const SizedBox(height: 8),
-          _buildPhraseMeaningHint(orderMeaningOrder),
-        ],
+        const SizedBox(height: 8),
+        _buildPhraseMeaningHint(orderMeaningOrder),
         const SizedBox(height: 16),
         Wrap(
           alignment: WrapAlignment.center,
