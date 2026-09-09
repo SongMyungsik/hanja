@@ -88,7 +88,7 @@ class _MainScreenState extends State<MainScreen> {
             HanjaListPage(allHanjas: allHanjas, phraseMeanings: phraseMeanings),
             // '상세' 탭은 기본적으로 첫 번째 한자를 보여줌
             HanjaDetailPage(hanjaList: allHanjas, initialIndex: 0),
-            QuizPage(hanjaList: allHanjas),
+            QuizPage(hanjaList: allHanjas, phraseMeanings: phraseMeanings),
             const RankingPage(),
           ];
 

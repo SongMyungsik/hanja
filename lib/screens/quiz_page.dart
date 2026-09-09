@@ -26,7 +26,8 @@ extension _QuizModeX on QuizMode {
 
 class QuizPage extends StatefulWidget {
   final List<Hanja> hanjaList;
-  const QuizPage({super.key, required this.hanjaList});
+  final Map<int, String> phraseMeanings;
+  const QuizPage({super.key, required this.hanjaList, required this.phraseMeanings});
 
   @override
   State<QuizPage> createState() => _QuizPageState();
@@ -386,7 +387,11 @@ class _QuizPageState extends State<QuizPage> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text('구절 속 빈칸에 들어갈 한자를 고르세요', style: TextStyle(fontSize: 13, color: Colors.black54)),
+        Text(
+          _phraseSentenceMeaning(currentPhrase) ?? '구절 속 빈칸에 들어갈 한자를 고르세요',
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 13, color: Colors.black54),
+        ),
         const SizedBox(height: 14),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -445,10 +450,19 @@ class _QuizPageState extends State<QuizPage> {
 
   Widget _buildOrderBody() {
     if (orderPhrase.isEmpty) return const CircularProgressIndicator();
+    final orderMeaning = _phraseSentenceMeaning(orderPhrase);
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         const Text('한자를 순서대로 탭하여 배치하세요', style: TextStyle(fontSize: 13, color: Colors.black54)),
+        if (orderMeaning != null) ...[
+          const SizedBox(height: 4),
+          Text(
+            orderMeaning,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 13, color: Colors.black54),
+          ),
+        ],
         const SizedBox(height: 14),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -511,6 +525,11 @@ class _QuizPageState extends State<QuizPage> {
         ],
       ],
     );
+  }
+
+  String? _phraseSentenceMeaning(List<Hanja> phrase) {
+    if (phrase.isEmpty) return null;
+    return widget.phraseMeanings[phrase.first.id];
   }
 
   Widget _buildPhraseMeaningHint(List<Hanja> chars) {
