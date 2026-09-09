@@ -21,7 +21,19 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: '천자문 앱',
-      theme: ThemeData(primarySwatch: Colors.indigo, useMaterial3: true),
+      theme: ThemeData(
+        primarySwatch: Colors.indigo,
+        useMaterial3: true,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color.fromARGB(255, 0, 0, 125),
+          foregroundColor: Colors.white,
+        ),
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          backgroundColor: Color.fromARGB(255, 0, 0, 125),
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.white70,
+        ),
+      ),
       home: const SplashScreen(), // 시작 화면으로 앱 시작
     );
   }
@@ -105,7 +117,6 @@ class _MainScreenState extends State<MainScreen> {
                 BottomNavigationBarItem(icon: Icon(Icons.emoji_events_outlined), label: '랭킹'),
               ],
               currentIndex: _selectedIndex,
-              selectedItemColor: Colors.indigo,
               onTap: _onItemTapped,
             ),
           );
