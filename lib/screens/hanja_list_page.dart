@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '../models/hanja.dart';
 import 'hanja_detail_page.dart';
 
@@ -15,6 +16,7 @@ class _HanjaListPageState extends State<HanjaListPage> {
   List<Hanja> filteredHanjas = [];
   final TextEditingController _hangulSearchController = TextEditingController();
   final TextEditingController _meaningSearchController = TextEditingController();
+  final ItemScrollController _itemScrollController = ItemScrollController();
 
   @override
   void initState() {
@@ -34,6 +36,15 @@ class _HanjaListPageState extends State<HanjaListPage> {
   }
 
   bool get _isFiltering => _hangulSearchController.text.isNotEmpty || _meaningSearchController.text.isNotEmpty;
+
+  void _jumpToId(int startId) {
+    final rowIndex = (startId - 1) ~/ 4;
+    _itemScrollController.scrollTo(
+      index: rowIndex,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
+    );
+  }
 
   void _filterHanjas() {
     final hangulQuery = _hangulSearchController.text.toLowerCase();
@@ -68,7 +79,7 @@ class _HanjaListPageState extends State<HanjaListPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(hanja.hanja, style: const TextStyle(fontSize: 42, height: 1.0)),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 5),
                   RichText(
                     text: TextSpan(
                       style: const TextStyle(fontSize: 14, color: Colors.black87, height: 1.0),
@@ -84,6 +95,42 @@ class _HanjaListPageState extends State<HanjaListPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildJumpBar() {
+    const startIds = [1, 101, 201, 301, 401, 501, 601, 701, 801, 901];
+
+    Widget buildRow(List<int> ids) {
+      return Row(
+        children: [
+          for (var i = 0; i < ids.length; i++) ...[
+            if (i > 0) const SizedBox(width: 4.0),
+            Expanded(
+              child: OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  minimumSize: Size.zero,
+                  textStyle: const TextStyle(fontSize: 11),
+                ),
+                onPressed: () => _jumpToId(ids[i]),
+                child: Text('${ids[i]}~${ids[i] + 99}'),
+              ),
+            ),
+          ],
+        ],
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      child: Column(
+        children: [
+          buildRow(startIds.sublist(0, 5)),
+          const SizedBox(height: 4),
+          buildRow(startIds.sublist(5, 10)),
+        ],
       ),
     );
   }
@@ -104,9 +151,11 @@ class _HanjaListPageState extends State<HanjaListPage> {
               Expanded(child: Padding(padding: const EdgeInsets.fromLTRB(8, 16, 16, 16), child: TextField(controller: _meaningSearchController, decoration: InputDecoration(prefixIcon: const Icon(Icons.lightbulb_outlined), labelText: '뜻으로 검색', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)), suffixIcon: _meaningSearchController.text.isNotEmpty ? IconButton(icon: const Icon(Icons.clear), onPressed: () {_meaningSearchController.clear();}) : null)))),
             ],
           ),
+          if (showCaptions) _buildJumpBar(),
           // 한자 목록 (4글자씩 한 구절)
           Expanded(
-            child: ListView.builder(
+            child: ScrollablePositionedList.builder(
+              itemScrollController: _itemScrollController,
               padding: const EdgeInsets.all(8.0),
               itemCount: rowCount,
               itemBuilder: (context, rowIndex) {
