@@ -10,10 +10,10 @@ enum QuizMode { meaning, fillBlank, order, matching }
 
 extension _QuizModeX on QuizMode {
   String get label => switch (this) {
-        QuizMode.meaning => '뜻 맞추기',
-        QuizMode.fillBlank => '빈칸 채우기',
-        QuizMode.order => '순서 배열',
-        QuizMode.matching => '짝맞추기',
+        QuizMode.meaning => '뜻',
+        QuizMode.fillBlank => '빈칸',
+        QuizMode.order => '순서',
+        QuizMode.matching => '짝',
       };
 
   String get storageKey => switch (this) {
@@ -271,7 +271,7 @@ class _QuizPageState extends State<QuizPage> {
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Center(child: _buildModeSelector()),
                     const SizedBox(height: 12),

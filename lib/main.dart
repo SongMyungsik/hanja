@@ -37,14 +37,23 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
-  late Future<List<Hanja>> _hanjaLoader;
+  late Future<({List<Hanja> hanjas, Map<int, String> phraseMeanings})> _hanjaLoader;
   List<Widget> _widgetOptions = [];
 
-  // 한자 데이터를 한 번만 로드
-  Future<List<Hanja>> _loadHanjaData() async {
+  // 한자 데이터와 구절 풀이를 한 번만 로드
+  Future<({List<Hanja> hanjas, Map<int, String> phraseMeanings})> _loadHanjaData() async {
     final String jsonString = await rootBundle.loadString('assets/cheonjamun.json');
     final List<dynamic> jsonList = json.decode(jsonString);
-    return jsonList.map((json) => Hanja.fromJson(json)).toList();
+    final hanjas = jsonList.map((json) => Hanja.fromJson(json)).toList();
+
+    final String phraseJsonString = await rootBundle.loadString('assets/cheonjamun2.json');
+    final List<dynamic> phraseJsonList = json.decode(phraseJsonString);
+    final phraseMeanings = <int, String>{
+      for (final item in phraseJsonList)
+        (item['순번'] as num).toInt(): (item['뜻'] as String).trim(),
+    };
+
+    return (hanjas: hanjas, phraseMeanings: phraseMeanings);
   }
 
   @override
@@ -61,7 +70,7 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Hanja>>(
+    return FutureBuilder<({List<Hanja> hanjas, Map<int, String> phraseMeanings})>(
       future: _hanjaLoader,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -71,11 +80,12 @@ class _MainScreenState extends State<MainScreen> {
           return Scaffold(body: Center(child: Text('데이터 로딩 실패: ${snapshot.error}')));
         }
         if (snapshot.hasData) {
-          final allHanjas = snapshot.data!;
+          final allHanjas = snapshot.data!.hanjas;
+          final phraseMeanings = snapshot.data!.phraseMeanings;
 
           // 로드된 데이터로 페이지들을 초기화
           _widgetOptions = <Widget>[
-            HanjaListPage(allHanjas: allHanjas),
+            HanjaListPage(allHanjas: allHanjas, phraseMeanings: phraseMeanings),
             // '상세' 탭은 기본적으로 첫 번째 한자를 보여줌
             HanjaDetailPage(hanjaList: allHanjas, initialIndex: 0),
             QuizPage(hanjaList: allHanjas),
