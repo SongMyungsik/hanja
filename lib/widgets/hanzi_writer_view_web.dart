@@ -7,8 +7,9 @@ import 'package:web/web.dart' as web;
 
 class HanziWriterView extends StatefulWidget {
   final String character;
+  final ValueChanged<bool>? onQuizSessionChanged;
 
-  const HanziWriterView({super.key, required this.character});
+  const HanziWriterView({super.key, required this.character, this.onQuizSessionChanged});
 
   @override
   State<HanziWriterView> createState() => _HanziWriterViewState();

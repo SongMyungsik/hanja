@@ -14,6 +14,7 @@ class HanjaDetailPage extends StatefulWidget {
 
 class _HanjaDetailPageState extends State<HanjaDetailPage> {
   late int currentIndex;
+  bool _scrollLocked = false;
   Hanja get currentHanja => widget.hanjaList[currentIndex];
 
   @override
@@ -39,6 +40,10 @@ class _HanjaDetailPageState extends State<HanjaDetailPage> {
     return Scaffold(
       appBar: AppBar(title: Text('${currentHanja.hanja} (${currentHanja.hangul})')),
       body: SingleChildScrollView(
+        // 퀴즈(직접 써보기) 진행 중에는 스크롤을 잠가 필기 드래그가
+        // 스크롤로 새지 않게 한다. 퀴즈 시작/종료 시점에만 바뀌므로
+        // 필기 중간에 리빌드가 끼어들 일이 없다.
+        physics: _scrollLocked ? const NeverScrollableScrollPhysics() : null,
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -66,6 +71,9 @@ class _HanjaDetailPageState extends State<HanjaDetailPage> {
               child: HanziWriterView(
                 key: ValueKey(currentHanja.id),
                 character: currentHanja.hanja,
+                onQuizSessionChanged: (active) {
+                  if (_scrollLocked != active) setState(() => _scrollLocked = active);
+                },
               ),
             ),
             const SizedBox(height: 20),
