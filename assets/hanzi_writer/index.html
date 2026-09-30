@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      overflow: hidden;
+      touch-action: none;
+    }
+    #target {
+      width: 260px;
+      height: 260px;
+    }
+  </style>
+</head>
+<body>
+  <div id="target"></div>
+  <script src="js/hanzi-writer.min.js"></script>
+  <script>
+    var writer = null;
+    var pendingCharCallbacks = {};
+
+    function post(message) {
+      if (window.FlutterBridge && window.FlutterBridge.postMessage) {
+        window.FlutterBridge.postMessage(JSON.stringify(message));
+      }
+    }
+
+    // Dart 쪽에서 rootBundle로 읽은 획순 데이터를 전달받는 콜백.
+    // jsonString이 null이면 데이터가 없는 글자라는 뜻이다.
+    function deliverCharData(char, jsonString) {
+      var callback = pendingCharCallbacks[char];
+      if (!callback) return;
+      delete pendingCharCallbacks[char];
+      if (jsonString === null) {
+        post({ event: 'dataUnavailable', char: char });
+        return;
+      }
+      try {
+        callback(JSON.parse(jsonString));
+      } catch (err) {
+        post({ event: 'dataUnavailable', char: char, debug: String(err) });
+      }
+    }
+
+    function loadCharacter(char) {
+      var target = document.getElementById('target');
+      target.innerHTML = '';
+      writer = null;
+      writer = HanziWriter.create(target, char, {
+        width: 260,
+        height: 260,
+        padding: 8,
+        showOutline: true,
+        strokeAnimationSpeed: 1,
+        delayBetweenStrokes: 300,
+        charDataLoader: function (loadedChar, onComplete) {
+          // file:// 로 열린 페이지에서는 fetch()로 로컬 자산을 읽을 수 없으므로,
+          // Flutter 쪽(FlutterBridge)에 데이터를 요청하고 deliverCharData()로 받는다.
+          pendingCharCallbacks[loadedChar] = onComplete;
+          post({ event: 'requestCharData', char: loadedChar });
+        }
+      });
+    }
+
+    function playAnimation() {
+      if (writer) writer.animateCharacter();
+    }
+
+    function startQuiz() {
+      if (!writer) return;
+      writer.quiz({
+        onComplete: function (summary) {
+          post({ event: 'quizComplete', totalMistakes: summary.totalMistakes });
+        }
+      });
+    }
+  </script>
+</body>
+</html>

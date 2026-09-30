@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 class HanziWriterView extends StatelessWidget {
   final String character;
+  final ValueChanged<bool>? onQuizSessionChanged;
 
-  const HanziWriterView({super.key, required this.character});
+  const HanziWriterView({super.key, required this.character, this.onQuizSessionChanged});
 
   @override
   Widget build(BuildContext context) {
