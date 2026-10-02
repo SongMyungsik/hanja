@@ -20,7 +20,7 @@ class HanziWriterView extends StatefulWidget {
 }
 
 class _HanziWriterViewState extends State<HanziWriterView> {
-  static const double _size = 260;
+  static const double _size = 220;
 
   // webview_flutter는 안드로이드/iOS만 공식 지원한다. 데스크톱(Windows 등)에서는
   // 대체 안내 위젯을 보여준다.
@@ -29,6 +29,7 @@ class _HanziWriterViewState extends State<HanziWriterView> {
   WebViewController? _controller;
   bool _pageReady = false;
   String? _quizFeedback;
+  final GlobalKey _feedbackKey = GlobalKey();
 
   @override
   void initState() {
@@ -76,14 +77,29 @@ class _HanziWriterViewState extends State<HanziWriterView> {
               ? '완벽해요! 실수 없이 완성했습니다 🎉'
               : '완성했습니다! 실수 $totalMistakes회';
         });
+        _showFeedback();
       case 'dataUnavailable':
         setState(() {
           _quizFeedback = '이 글자는 획순 데이터가 없습니다.';
         });
+        _showFeedback();
       case 'requestCharData':
         final char = data['char'] as String?;
         if (char != null) _deliverCharData(char);
     }
+  }
+
+  // 메시지가 화면 밖에 있으면 보이는 위치까지 스크롤한다.
+  void _showFeedback() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final feedbackContext = _feedbackKey.currentContext;
+      if (feedbackContext == null) return;
+      Scrollable.ensureVisible(
+        feedbackContext,
+        duration: const Duration(milliseconds: 250),
+        alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+      );
+    });
   }
 
   // file:// 로 로드된 페이지는 fetch()로 로컬 자산을 읽을 수 없으므로,
@@ -169,10 +185,12 @@ class _HanziWriterViewState extends State<HanziWriterView> {
             ),
           ],
         ),
-        if (_quizFeedback != null) ...[
-          const SizedBox(height: 8),
-          Text(_quizFeedback!, style: const TextStyle(fontWeight: FontWeight.bold)),
-        ],
+        // 메시지가 없을 때도 자리를 비워 두어, 완료 시 레이아웃이 밀리지 않게 한다.
+        Padding(
+          key: _feedbackKey,
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Text(_quizFeedback ?? '', style: const TextStyle(fontWeight: FontWeight.bold)),
+        ),
       ],
     );
   }

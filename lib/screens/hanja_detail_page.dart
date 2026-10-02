@@ -39,7 +39,8 @@ class _HanjaDetailPageState extends State<HanjaDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('${currentHanja.hanja} (${currentHanja.hangul})')),
-      body: SingleChildScrollView(
+      // 시스템 내비게이션 바(하단)에 획순/쓰기 버튼이 가려지지 않게 한다.
+      body: SafeArea(child: SingleChildScrollView(
         // 퀴즈(직접 써보기) 진행 중에는 스크롤을 잠가 필기 드래그가
         // 스크롤로 새지 않게 한다. 퀴즈 시작/종료 시점에만 바뀌므로
         // 필기 중간에 리빌드가 끼어들 일이 없다.
@@ -65,6 +66,13 @@ class _HanjaDetailPageState extends State<HanjaDetailPage> {
               ]),
             ]))),
             const SizedBox(height: 20),
+            const Text('사용 예시', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            if (currentHanja.examples.isNotEmpty)
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: currentHanja.examples.map((example) => Padding(padding: const EdgeInsets.only(bottom: 8.0), child: Text('• $example', style: const TextStyle(fontSize: 16)))).toList())
+            else
+              const Text('등록된 사용 예시가 없습니다.', style: TextStyle(fontSize: 16, color: Colors.grey)),
+            const SizedBox(height: 20),
             const Text('획순 / 쓰기 연습', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
             Center(
@@ -76,16 +84,9 @@ class _HanjaDetailPageState extends State<HanjaDetailPage> {
                 },
               ),
             ),
-            const SizedBox(height: 20),
-            const Text('사용 예시', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-            if (currentHanja.examples.isNotEmpty)
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: currentHanja.examples.map((example) => Padding(padding: const EdgeInsets.only(bottom: 8.0), child: Text('• $example', style: const TextStyle(fontSize: 16)))).toList())
-            else
-              const Text('등록된 사용 예시가 없습니다.', style: TextStyle(fontSize: 16, color: Colors.grey)),
           ],
         ),
-      ),
+      )),
     );
   }
 }

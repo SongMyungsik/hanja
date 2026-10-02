@@ -16,12 +16,13 @@ class HanziWriterView extends StatefulWidget {
 }
 
 class _HanziWriterViewState extends State<HanziWriterView> {
-  static const double _size = 260;
+  static const double _size = 220;
   static int _viewCounter = 0;
 
   late final String _viewType;
   JSObject? _writer;
   String? _quizFeedback;
+  final GlobalKey _feedbackKey = GlobalKey();
 
   @override
   void initState() {
@@ -76,6 +77,16 @@ class _HanziWriterViewState extends State<HanziWriterView> {
             ? '완벽해요! 실수 없이 완성했습니다 🎉'
             : '완성했습니다! 실수 $totalMistakes회';
       });
+      // 메시지가 화면 밖에 있으면 보이는 위치까지 스크롤한다.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final feedbackContext = _feedbackKey.currentContext;
+        if (feedbackContext == null) return;
+        Scrollable.ensureVisible(
+          feedbackContext,
+          duration: const Duration(milliseconds: 250),
+          alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+        );
+      });
     }
 
     final options = JSObject()..setProperty('onComplete'.toJS, onComplete.toJS);
@@ -117,10 +128,12 @@ class _HanziWriterViewState extends State<HanziWriterView> {
             ),
           ],
         ),
-        if (_quizFeedback != null) ...[
-          const SizedBox(height: 8),
-          Text(_quizFeedback!, style: const TextStyle(fontWeight: FontWeight.bold)),
-        ],
+        // 메시지가 없을 때도 자리를 비워 두어, 완료 시 레이아웃이 밀리지 않게 한다.
+        Padding(
+          key: _feedbackKey,
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Text(_quizFeedback ?? '', style: const TextStyle(fontWeight: FontWeight.bold)),
+        ),
       ],
     );
   }

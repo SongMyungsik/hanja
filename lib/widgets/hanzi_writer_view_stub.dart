@@ -9,8 +9,8 @@ class HanziWriterView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 260,
-      height: 260,
+      width: 220,
+      height: 220,
       alignment: Alignment.center,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
